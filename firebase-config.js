@@ -7,14 +7,14 @@ window.RP_FIREBASE = {
 
   // ① Firebase 콘솔 > 프로젝트 설정 > 내 앱(웹)에 보이는
   //    const firebaseConfig = { ... };  의 중괄호 안 내용을 여기에 붙여 넣으세요.
-  config = {
-  apiKey: "AIzaSyDKCn33RzztOTscWn5dD3m4IXEBC_SCNQE",
-  authDomain: "baba-is-baba.firebaseapp.com",
-  projectId: "baba-is-baba",
-  storageBucket: "baba-is-baba.firebasestorage.app",
-  messagingSenderId: "1065988375533",
-  appId: "1:1065988375533:web:441fa21a46f97e3b4c9de4"
-};
+  config: {
+    apiKey: "AIzaSyDKCn33RzztOTscWn5dD3m4IXEBC_SCNQE",
+    authDomain: "baba-is-baba.firebaseapp.com",
+    projectId: "baba-is-baba",
+    storageBucket: "baba-is-baba.firebasestorage.app",
+    messagingSenderId: "1065988375533",
+    appId: "1:1065988375533:web:441fa21a46f97e3b4c9de4"
+  },
 
   // ② 교사용 대시보드에 로그인할 구글 계정 (firestore.rules에도 똑같이 적어요)
   teachers: ["trapinch763@gmail.com"],
