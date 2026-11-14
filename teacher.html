@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>규칙을 밀어라 · 교사용 대시보드</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet">
+<style>
+:root{ --ink:#3A2E28; --paper:#FFFBF2; --bg:#F6EFE2; --muted:#7A6A5E; --line:#E3D7C4; --yellow:#FFD04D; --red:#C2412A; }
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--bg); color:var(--ink); font-family:"Gowun Dodum",system-ui,sans-serif; font-size:15px; }
+.wrap{ max-width:1320px; margin:0 auto; padding:18px 16px 40px; }
+.top{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+h1{ margin:0; font:28px/1.2 "Jua",sans-serif; }
+h1 span{ font-size:17px; color:var(--muted); margin-left:6px; }
+.acct{ display:flex; align-items:center; gap:8px; font-size:14px; color:var(--muted); }
+.btn{ font:15px "Jua",sans-serif; padding:7px 14px; color:var(--ink); background:#fff; border:2px solid var(--ink); border-radius:11px; box-shadow:0 2.5px 0 var(--ink); cursor:pointer; }
+.btn:active{ transform:translateY(2px); box-shadow:0 .5px 0 var(--ink); }
+.btn.primary{ background:var(--yellow); }
+.btn.danger{ color:var(--red); }
+.btn:focus-visible,.tab:focus-visible,select:focus-visible{ outline:3px solid #6CC6F0; outline-offset:2px; }
+.btn[hidden]{ display:none; }
+.msg{ margin:0 0 14px; padding:10px 14px; border:2px solid var(--ink); border-radius:12px; background:#fff; line-height:1.5; }
+.msg[data-k="err"]{ background:#FDE6DF; } .msg[data-k="warn"]{ background:#FFF3C4; } .msg[data-k="ok"]{ background:#E3F4DA; }
+.gate{ max-width:520px; margin:40px auto; padding:24px; text-align:center; background:var(--paper); border:2.5px solid var(--ink); border-radius:18px; box-shadow:0 5px 0 var(--ink); }
+.gate h2{ font:22px "Jua",sans-serif; margin:0 0 8px; } .gate p{ line-height:1.6; margin:0 0 16px; }
+.bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+.tabs{ display:flex; gap:6px; flex-wrap:wrap; }
+.tab{ font:16px "Jua",sans-serif; padding:7px 16px; color:var(--ink); background:#fff; border:2px solid var(--ink); border-radius:11px; cursor:pointer; }
+.tab.on{ background:var(--ink); color:#fff; }
+.tools{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:14px; }
+.tools select{ font:15px "Gowun Dodum",sans-serif; padding:6px 8px; border:2px solid var(--ink); border-radius:9px; background:#fff; color:var(--ink); }
+.cards{ display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin-bottom:12px; }
+.card{ padding:12px 14px; background:var(--paper); border:2px solid var(--ink); border-radius:14px; box-shadow:0 3px 0 var(--ink); }
+.card .k{ font-size:13.5px; color:var(--muted); }
+.card .v{ font:24px/1.25 "Jua",sans-serif; margin-top:2px; }
+.card .v small{ font-size:15px; color:var(--muted); }
+.legend{ display:flex; gap:16px; flex-wrap:wrap; align-items:center; font-size:13.5px; color:var(--muted); margin:0 0 8px; }
+.legend i{ display:inline-grid; place-items:center; width:20px; height:20px; margin-right:5px; vertical-align:-5px; border-radius:6px; font-style:normal; color:#fff; font-size:12px; }
+.tablewrap{ overflow-x:auto; background:var(--paper); border:2px solid var(--ink); border-radius:14px; box-shadow:0 3px 0 var(--ink); }
+table{ border-collapse:separate; border-spacing:0; width:100%; font-size:13.5px; }
+th,td{ padding:0; text-align:center; white-space:nowrap; }
+thead th{ font:14px "Jua",sans-serif; padding:7px 6px; background:var(--paper); border-bottom:1.5px solid var(--line); }
+thead th.rg{ color:#fff; background:var(--c); border-left:3px solid var(--paper); }
+thead th.sn{ font-size:12.5px; color:var(--muted); min-width:28px; padding:4px 0; }
+thead th.sn.think{ color:var(--ink); }
+thead th.sn.think::after{ content:""; display:block; width:6px; height:6px; margin:2px auto 0; border-radius:50%; background:var(--yellow); border:1.2px solid var(--ink); }
+.sticky{ position:sticky; left:0; z-index:1; background:var(--paper); text-align:left; padding:0 10px 0 12px !important; font:14px "Jua",sans-serif; border-right:1.5px solid var(--line); }
+tbody th.sticky,tfoot th.sticky{ height:30px; }
+tbody tr:nth-child(even) td,tbody tr:nth-child(even) th{ background:#FBF4E7; }
+td.num{ font:15px "Jua",sans-serif; padding:0 8px; }
+td.c{ position:relative; width:28px; height:30px; }
+td.c::before{ content:""; position:absolute; inset:4px 3px; border-radius:6px; background:#EFE6D6; }
+td.c.ok::before{ background:var(--c); }
+td.c.ok{ color:#fff; font-weight:700; }
+td.c span{ position:relative; }
+td.c.now::before{ background:#FFF3B0; box-shadow:inset 0 0 0 2px var(--ink); }
+td.c i{ position:absolute; right:1px; top:1px; min-width:13px; height:13px; padding:0 2px; font:10px/13px "Jua",sans-serif; font-style:normal; color:var(--ink); background:#fff; border:1px solid var(--ink); border-radius:7px; z-index:1; }
+.rs{ border-left:3px solid var(--paper); }
+td.curn{ text-align:left; padding:0 12px; color:var(--muted); }
+td.ago{ padding:0 12px; color:var(--muted); text-align:left; }
+.dot{ display:inline-block; width:8px; height:8px; margin-right:6px; border-radius:50%; background:#5BB04A; }
+tfoot th,tfoot td{ border-top:1.5px solid var(--line); font:13px "Jua",sans-serif; height:30px; }
+tfoot td.f{ background:rgba(91,176,74,calc(var(--a) * .55)); }
+.empty{ padding:36px 16px; text-align:center; color:var(--muted); line-height:1.6; }
+.foot{ margin-top:12px; font-size:13px; color:var(--muted); }
+@media (max-width:640px){ h1{ font-size:23px; } .card .v{ font-size:20px; } }
+</style>
+<script src="firebase-config.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>규칙을 밀어라<span>교사용 대시보드</span></h1>
+    <div class="acct"><span id="who"></span><button id="loginBtn" class="btn primary" type="button" hidden>구글 계정으로 로그인</button><button id="logoutBtn" class="btn" type="button" hidden>로그아웃</button></div>
+  </header>
+  <p id="msg" class="msg" hidden></p>
+  <section id="gate" class="gate" hidden>
+    <h2>교사 계정으로 로그인해 주세요</h2>
+    <p>firebase-config.js와 보안 규칙에 적은 구글 계정으로 들어오면<br>반별 진행 상황이 실시간으로 보여요.</p>
+    <button id="gateBtn" class="btn primary" type="button">구글 계정으로 로그인</button>
+  </section>
+  <main id="main" hidden>
+    <div class="bar">
+      <nav id="tabs" class="tabs" role="tablist" aria-label="반 고르기"></nav>
+      <div class="tools">
+        <label>정렬 <select id="sort"><option value="no">번호 순</option><option value="solved">해결 많은 순</option><option value="recent">최근 활동 순</option></select></label>
+        <button id="csvBtn" class="btn" type="button">CSV 내려받기</button>
+        <button id="clearBtn" class="btn danger" type="button">이 반 기록 지우기</button>
+      </div>
+    </div>
+    <div id="cards" class="cards"></div>
+    <div class="legend">
+      <span><i style="background:#5BB04A">✓</i>해결</span>
+      <span><i style="background:#FFF3B0;box-shadow:inset 0 0 0 2px #3A2E28"></i>지금 푸는 중(5분 안)</span>
+      <span><i style="background:#fff;color:#3A2E28;border:1px solid #3A2E28;border-radius:8px;width:16px;height:16px;font-family:Jua">2</i>본 힌트 수</span>
+      <span><i style="background:transparent;color:#3A2E28;width:auto">●</i>노란 점: 생각 문제</span>
+    </div>
+    <div class="tablewrap"><table id="grid"></table></div>
+    <p class="foot">학생이 단계를 풀거나 새 단계를 열 때마다 저장되고, 이 화면은 저절로 바뀌어요. 칸에 마우스를 올리면 단계 이름과 해결 시각이 보여요.</p>
+  </main>
+</div>
+<script type="module">
+const C = window.RP_FIREBASE || {};
+const DEMO = new URLSearchParams(location.search).has('demo');
+const OK = !!(C.config && C.config.apiKey && !/여기|YOUR/i.test(C.config.apiKey));
+const CLASSES = (C.classes && C.classes.length) ? C.classes : ['1반'];
+const TEACHERS = (C.teachers || []).map(s => String(s).toLowerCase());
+const LV = [{"id": "b1", "name": "첫발", "rname": "첫 해변", "rkey": "beach", "n": 1, "think": false, "first": true, "color": "#EE9A2C"}, {"id": "b2", "name": "모래길", "rname": "첫 해변", "rkey": "beach", "n": 2, "think": false, "first": false, "color": "#EE9A2C"}, {"id": "b3", "name": "밀물", "rname": "첫 해변", "rkey": "beach", "n": 3, "think": false, "first": false, "color": "#EE9A2C"}, {"id": "v1", "name": "문턱", "rname": "첫 해변", "rkey": "beach", "n": 4, "think": false, "first": false, "color": "#EE9A2C"}, {"id": "i1", "name": "나 자신", "rname": "첫 해변", "rkey": "beach", "n": 5, "think": true, "first": false, "color": "#EE9A2C"}, {"id": "v2", "name": "새벽", "rname": "풍차 마을", "rkey": "village", "n": 1, "think": false, "first": true, "color": "#4FA83A"}, {"id": "v3", "name": "고요", "rname": "풍차 마을", "rkey": "village", "n": 2, "think": false, "first": false, "color": "#4FA83A"}, {"id": "v4", "name": "종소리", "rname": "풍차 마을", "rkey": "village", "n": 3, "think": false, "first": false, "color": "#4FA83A"}, {"id": "v5", "name": "등불", "rname": "풍차 마을", "rkey": "village", "n": 4, "think": false, "first": false, "color": "#4FA83A"}, {"id": "v7", "name": "돌담 너머", "rname": "풍차 마을", "rkey": "village", "n": 5, "think": true, "first": false, "color": "#4FA83A"}, {"id": "l1", "name": "잔물결", "rname": "잔잔한 호수", "rkey": "lake", "n": 1, "think": false, "first": true, "color": "#2E8FD6"}, {"id": "l2", "name": "먼 물가", "rname": "잔잔한 호수", "rkey": "lake", "n": 2, "think": false, "first": false, "color": "#2E8FD6"}, {"id": "l4", "name": "물수제비", "rname": "잔잔한 호수", "rkey": "lake", "n": 3, "think": false, "first": false, "color": "#2E8FD6"}, {"id": "l3", "name": "달빛", "rname": "잔잔한 호수", "rkey": "lake", "n": 4, "think": true, "first": false, "color": "#2E8FD6"}, {"id": "i3", "name": "용감한 친구", "rname": "잔잔한 호수", "rkey": "lake", "n": 5, "think": true, "first": false, "color": "#2E8FD6"}, {"id": "f1", "name": "불씨", "rname": "불꽃 산", "rkey": "volcano", "n": 1, "think": false, "first": true, "color": "#DD5129"}, {"id": "f2", "name": "재", "rname": "불꽃 산", "rkey": "volcano", "n": 2, "think": false, "first": false, "color": "#DD5129"}, {"id": "f3", "name": "숯", "rname": "불꽃 산", "rkey": "volcano", "n": 3, "think": false, "first": false, "color": "#DD5129"}, {"id": "f4", "name": "분화구", "rname": "불꽃 산", "rkey": "volcano", "n": 4, "think": true, "first": false, "color": "#DD5129"}, {"id": "i2", "name": "불 끄기", "rname": "불꽃 산", "rkey": "volcano", "n": 5, "think": true, "first": false, "color": "#DD5129"}, {"id": "c1", "name": "안개", "rname": "구름 언덕", "rkey": "clouds", "n": 1, "think": false, "first": true, "color": "#5F80DE"}, {"id": "c2", "name": "하늘빛", "rname": "구름 언덕", "rkey": "clouds", "n": 2, "think": true, "first": false, "color": "#5F80DE"}, {"id": "c3", "name": "구름다리", "rname": "구름 언덕", "rkey": "clouds", "n": 3, "think": false, "first": false, "color": "#5F80DE"}, {"id": "s1", "name": "등대", "rname": "구름 언덕", "rkey": "clouds", "n": 4, "think": true, "first": false, "color": "#5F80DE"}, {"id": "c4", "name": "아지랑이", "rname": "구름 언덕", "rkey": "clouds", "n": 5, "think": true, "first": false, "color": "#5F80DE"}, {"id": "v6", "name": "바위 그늘", "rname": "꼭대기", "rkey": "summit", "n": 1, "think": false, "first": true, "color": "#8460D0"}, {"id": "s3", "name": "두 개의 강", "rname": "꼭대기", "rkey": "summit", "n": 2, "think": false, "first": false, "color": "#8460D0"}, {"id": "s4", "name": "보물찾기", "rname": "꼭대기", "rkey": "summit", "n": 3, "think": false, "first": false, "color": "#8460D0"}, {"id": "s5", "name": "녹는 벽", "rname": "꼭대기", "rkey": "summit", "n": 4, "think": true, "first": false, "color": "#8460D0"}, {"id": "s2", "name": "축제", "rname": "꼭대기", "rkey": "summit", "n": 5, "think": false, "first": false, "color": "#8460D0"}];
+const REG = [{"key": "beach", "name": "첫 해변", "color": "#EE9A2C", "count": 5}, {"key": "village", "name": "풍차 마을", "color": "#4FA83A", "count": 5}, {"key": "lake", "name": "잔잔한 호수", "color": "#2E8FD6", "count": 5}, {"key": "volcano", "name": "불꽃 산", "color": "#DD5129", "count": 5}, {"key": "clouds", "name": "구름 언덕", "color": "#5F80DE", "count": 5}, {"key": "summit", "name": "꼭대기", "color": "#8460D0", "count": 5}];
+const BASE = 'https://www.gstatic.com/firebasejs/10.12.2/';
+const ACTIVE = 5 * 60 * 1000;
+const $ = s => document.querySelector(s);
+const byId = Object.fromEntries(LV.map(l => [l.id, l]));
+let cls = CLASSES[0], rows = [], unsub = null, fs = null, db = null, authM = null, auth = null;
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const ms = t => !t ? 0 : typeof t === 'number' ? t : t.toMillis ? t.toMillis() : 0;
+function ago(t) {
+  const m = ms(t); if (!m) return '-';
+  const s = Math.max(0, (Date.now() - m) / 1000);
+  if (s < 60) return '방금'; if (s < 3600) return Math.floor(s / 60) + '분 전'; if (s < 86400) return Math.floor(s / 3600) + '시간 전';
+  return new Date(m).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' });
+}
+const stageName = l => l.rname + ' ' + l.n + '단계 ' + l.name;
+function setMsg(t, k) { const m = $('#msg'); m.hidden = !t; m.textContent = t || ''; m.dataset.k = k || ''; }
+
+function tabs() {
+  $('#tabs').innerHTML = CLASSES.map(c => `<button class="tab${c === cls ? ' on' : ''}" role="tab" aria-selected="${c === cls}" data-c="${esc(c)}">${esc(c)}</button>`).join('');
+  document.querySelectorAll('.tab').forEach(b => b.onclick = () => { cls = b.dataset.c; tabs(); listen(); });
+}
+
+function render() {
+  const now = Date.now(), sortBy = $('#sort').value, list = rows.slice();
+  const solvedOf = r => new Set((r.solved || []).filter(id => byId[id]));
+  list.sort(sortBy === 'solved' ? (a, b) => solvedOf(b).size - solvedOf(a).size || a.no - b.no
+    : sortBy === 'recent' ? (a, b) => ms(b.updatedAt) - ms(a.updatedAt) : (a, b) => a.no - b.no);
+  const n = list.length, cnt = {}, stay = {};
+  LV.forEach(l => cnt[l.id] = 0);
+  let total = 0, all = 0, active = 0;
+  list.forEach(r => {
+    const sv = solvedOf(r); total += sv.size; if (sv.size >= LV.length) all++;
+    sv.forEach(id => cnt[id]++);
+    const recent = now - ms(r.updatedAt) < ACTIVE; if (recent) active++;
+    if (recent && r.current && byId[r.current] && !sv.has(r.current)) stay[r.current] = (stay[r.current] || 0) + 1;
+  });
+  let top = null; for (const id in stay) if (!top || stay[id] > stay[top]) top = id;
+  const card = (k, v, sub) => `<div class="card"><div class="k">${k}</div><div class="v">${v}${sub ? ' <small>' + sub + '</small>' : ''}</div></div>`;
+  $('#cards').innerHTML = card('들어온 학생', n + '명') + card('평균 해결', (n ? total / n : 0).toFixed(1), '/ ' + LV.length + '단계')
+    + card('모두 해결', all + '명') + card('지금 활동 중', active + '명', '5분 안')
+    + card('많이 머무는 단계', top ? esc(byId[top].name) : '-', top ? esc(byId[top].rname) + ' · ' + stay[top] + '명' : '');
+  const g = $('#grid');
+  if (!n) { g.innerHTML = `<tbody><tr><td class="empty">아직 ${esc(cls)}에 들어온 학생이 없어요.<br>학생이 게임 화면에서 반과 번호를 고르면 여기에 바로 나타나요.</td></tr></tbody>`; return; }
+  let h = '<thead><tr><th rowspan="2" class="sticky">번호</th><th rowspan="2">해결</th>'
+    + REG.map(r => `<th colspan="${r.count}" class="rg" style="--c:${r.color}">${esc(r.name)}</th>`).join('')
+    + '<th rowspan="2" style="text-align:left;padding-left:12px">지금 푸는 단계</th><th rowspan="2" style="text-align:left;padding-left:12px">마지막 저장</th></tr><tr>'
+    + LV.map(l => `<th class="sn${l.think ? ' think' : ''}${l.first ? ' rs' : ''}" title="${esc(stageName(l) + (l.think ? ' (생각 문제)' : ''))}">${l.n}</th>`).join('') + '</tr></thead><tbody>';
+  list.forEach(r => {
+    const sv = solvedOf(r), hn = r.hints || {}, at = r.solvedAt || {}, recent = now - ms(r.updatedAt) < ACTIVE;
+    h += `<tr><th class="sticky">${esc(r.no)}번</th><td class="num">${sv.size}</td>` + LV.map(l => {
+      const ok = sv.has(l.id), nowc = !ok && recent && r.current === l.id, hc = hn[l.id] || 0;
+      const tip = stageName(l) + (ok ? ' · 해결' + (at[l.id] ? ' ' + ago(at[l.id]) : '') : nowc ? ' · 지금 푸는 중' : '') + (hc ? ' · 힌트 ' + hc + '개' : '');
+      return `<td class="c${ok ? ' ok' : ''}${nowc ? ' now' : ''}${l.first ? ' rs' : ''}" style="--c:${l.color}" title="${esc(tip)}"><span>${ok ? '✓' : ''}</span>${hc ? '<i>' + hc + '</i>' : ''}</td>`;
+    }).join('');
+    const cl = byId[r.current];
+    h += `<td class="curn">${sv.size >= LV.length ? '모두 해결!' : cl && !sv.has(cl.id) ? esc(stageName(cl)) : '-'}</td><td class="ago">${recent ? '<b class="dot"></b>' : ''}${ago(r.updatedAt)}</td></tr>`;
+  });
+  h += '</tbody><tfoot><tr><th class="sticky">해결한 학생</th><td></td>'
+    + LV.map(l => `<td class="f${l.first ? ' rs' : ''}" style="--a:${(cnt[l.id] / n).toFixed(2)}" title="${esc(stageName(l))}: ${cnt[l.id]}명">${cnt[l.id]}</td>`).join('')
+    + '<td></td><td></td></tr></tfoot>';
+  g.innerHTML = h;
+}
+
+function demoRows(c) {
+  let seed = 7; for (const ch of c) seed = (seed * 31 + ch.charCodeAt(0)) % 233280;
+  const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280, now = Date.now(), out = [];
+  for (let no = 1; no <= 26; no++) {
+    if (rnd() < 0.08) continue;
+    const skill = 0.45 + rnd() * 0.5, solved = [], hints = {}, at = {};
+    let fails = 0, current = '', t = now - 40 * 60000;
+    for (const l of LV) {
+      if (fails > 2) break;
+      if (rnd() < skill * (l.think ? 0.6 : 1)) { solved.push(l.id); t += rnd() * 120000; at[l.id] = t; if (rnd() < 0.2) hints[l.id] = 1 + Math.floor(rnd() * 3); }
+      else { fails++; if (!current) current = l.id; if (rnd() < 0.5) hints[l.id] = 1 + Math.floor(rnd() * 2); }
+    }
+    const up = rnd() < 0.75 ? now - rnd() * 280000 : now - (6 + rnd() * 30) * 60000;
+    out.push({ _id: String(no), cls: c, no, solved, solvedCount: solved.length, hints, solvedAt: at, current, updatedAt: up });
+  }
+  return out;
+}
+
+function listen() {
+  if (unsub) { unsub(); unsub = null; }
+  rows = []; render();
+  if (DEMO) { rows = demoRows(cls); render(); return; }
+  if (!db || !auth.currentUser || auth.currentUser.isAnonymous) return;
+  unsub = fs.onSnapshot(fs.collection(db, 'rooms', cls, 'students'), snap => {
+    rows = snap.docs.map(d => { const v = d.data(); return Object.assign({}, v, { _id: d.id, no: Number(v.no || d.id) }); });
+    render();
+  }, err => {
+    console.warn(err);
+    setMsg(err.code === 'permission-denied'
+      ? '권한이 없어요. 보안 규칙(firestore.rules)에 적은 교사 이메일이 지금 로그인한 계정(' + (auth.currentUser.email || '') + ')과 같은지 확인해 주세요.'
+      : '기록을 불러오지 못했어요: ' + err.message, 'err');
+  });
+}
+
+function csv() {
+  const list = rows.slice().sort((a, b) => a.no - b.no);
+  const head = ['반', '번호', '해결 단계 수'].concat(LV.map(stageName), ['힌트 본 수', '마지막 저장']);
+  const lines = [head].concat(list.map(r => {
+    const sv = new Set(r.solved || []), hs = Object.values(r.hints || {}).reduce((s, v) => s + (+v || 0), 0);
+    return [cls, r.no, LV.filter(l => sv.has(l.id)).length].concat(LV.map(l => sv.has(l.id) ? 'O' : ''), [hs, ms(r.updatedAt) ? new Date(ms(r.updatedAt)).toLocaleString('ko-KR') : '']);
+  }));
+  const txt = '﻿' + lines.map(a => a.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'text/csv' }));
+  a.download = '규칙을밀어라_' + cls + '.csv'; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+async function clearClass() {
+  if (!rows.length) { setMsg(cls + '에는 지울 기록이 없어요.', 'warn'); return; }
+  if (!confirm(cls + ' 학생 ' + rows.length + '명의 기록을 모두 지울까요? 되돌릴 수 없어요.')) return;
+  if (DEMO) { rows = []; render(); setMsg('미리보기라 화면에서만 지웠어요.', 'ok'); return; }
+  try { await Promise.all(rows.map(r => fs.deleteDoc(fs.doc(db, 'rooms', cls, 'students', r._id)))); setMsg(cls + ' 기록을 지웠어요.', 'ok'); }
+  catch (e) { setMsg('지우지 못했어요: ' + e.message, 'err'); }
+}
+
+async function login() {
+  setMsg('');
+  try { await authM.signInWithPopup(auth, new authM.GoogleAuthProvider()); }
+  catch (e) {
+    if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') return;
+    setMsg(e.code === 'auth/unauthorized-domain'
+      ? '이 주소가 Firebase의 승인된 도메인에 없어요. Authentication > 설정 > 승인된 도메인에 ' + location.hostname + ' 를 추가해 주세요.'
+      : e.code === 'auth/operation-not-allowed' ? 'Google 로그인이 꺼져 있어요. Authentication > 로그인 방법에서 Google을 켜 주세요.'
+      : '로그인하지 못했어요: ' + e.message, 'err');
+  }
+}
+
+async function boot() {
+  tabs();
+  $('#sort').onchange = render; $('#csvBtn').onclick = csv; $('#clearBtn').onclick = clearClass;
+  setInterval(render, 30000);
+  if (DEMO) { $('#who').textContent = '미리보기 · 예시 데이터'; $('#main').hidden = false; listen(); return; }
+  if (!OK) { setMsg('firebase-config.js에 Firebase 설정값을 아직 넣지 않았어요. 주소 끝에 ?demo=1 을 붙이면 예시 데이터로 미리 볼 수 있어요.', 'warn'); return; }
+  try {
+    const [a, b, c] = await Promise.all([import(BASE + 'firebase-app.js'), import(BASE + 'firebase-auth.js'), import(BASE + 'firebase-firestore.js')]);
+    fs = c; authM = b; const app = a.initializeApp(C.config); auth = b.getAuth(app); db = c.getFirestore(app);
+  } catch (e) { console.warn(e); setMsg('Firebase를 불러오지 못했어요. 인터넷 연결을 확인해 주세요.', 'err'); return; }
+  $('#loginBtn').onclick = login; $('#gateBtn').onclick = login;
+  $('#logoutBtn').onclick = () => authM.signOut(auth);
+  authM.onAuthStateChanged(auth, u => {
+    const inT = u && !u.isAnonymous;
+    $('#who').textContent = inT ? u.email : '';
+    $('#loginBtn').hidden = !!inT; $('#logoutBtn').hidden = !inT;
+    $('#gate').hidden = !!inT; $('#main').hidden = !inT;
+    if (inT) {
+      if (TEACHERS.length && !TEACHERS.includes((u.email || '').toLowerCase())) setMsg(u.email + ' 계정은 firebase-config.js의 교사 목록에 없어요. 보안 규칙에도 없으면 기록이 보이지 않아요.', 'warn');
+      else setMsg('');
+      listen();
+    } else { if (unsub) { unsub(); unsub = null; } rows = []; }
+  });
+}
+boot();
+</script>
+</body>
+</html>
